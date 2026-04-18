@@ -44,6 +44,8 @@ class Chapter {
           .toList(),
     );
   }
+    /// Returns all verses in this chapter
+  List<Verse> get allVerses => verses;
 }
 
 class Verse {
@@ -59,3 +61,4 @@ class Verse {
     );
   }
 }
+
