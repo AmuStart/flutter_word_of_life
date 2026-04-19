@@ -64,7 +64,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
 
     if (currentIndex > 0) {
         setState(() {
-          selectedVerse = book.chapters[currentIndex - 1].chapter;
+          selectedChapter = book.chapters[currentIndex - 1].chapter;
         });
       }
   }
@@ -131,36 +131,39 @@ class _BibleHomePageState extends State<BibleHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BookDropdown(
-                  books: books,
-                  selectedBook: selectedBook,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedBook = value;
-                      selectedChapter = null;
-                      selectedVerse = null;
-                    });
-                  },
+                // 🔹 BOOK + CHAPTER ON THE SAME ROW
+                Row(
+                  children: [
+                    Expanded(
+                      child: BookDropdown(
+                        books: books,
+                        selectedBook: selectedBook,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedBook = value;
+                            selectedChapter = null;
+                            selectedVerse = null;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    if (book != null)
+                      Expanded(
+                        child: ChapterDropdown(
+                          chapters: book.chapters,
+                          selectedChapter: selectedChapter,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedChapter = value;
+                              selectedVerse = 0; // All verses
+                            });
+                          },
+                        ),
+                      ),
+                  ],
                 ),
-                if (book != null)
-                  ChapterDropdown(
-                    chapters: book.chapters,
-                    selectedChapter: selectedChapter,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedChapter = value;
-                        selectedVerse = null;
-                      });
-                    },
-                  ),
-                if (chapter != null)
-                  VerseDropdown(
-                    verses: chapter.verses,
-                    selectedVerse: selectedVerse,
-                    onChanged: (value) {
-                      setState(() => selectedVerse = value);
-                    },
-                  ),
+
                 const SizedBox(height: 20),
 
                 // ✅ CHAPTER NAVIGATION (only for All Verses selected) Next - Previous Arrows
