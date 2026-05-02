@@ -3,8 +3,8 @@ import '../models/bible_models.dart';
 
 class BookDropdown extends StatelessWidget {
   final List<Book> books;
-  final String? selectedBook;
-  final ValueChanged<String?> onChanged;
+  final Book? selectedBook;
+  final ValueChanged<Book?> onChanged;
 
   const BookDropdown({
     super.key,
@@ -13,18 +13,21 @@ class BookDropdown extends StatelessWidget {
     required this.onChanged,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      hint: const Text("Select Book"),
-      value: selectedBook,
-      items: books
-          .map((b) => DropdownMenuItem(
-                value: b.name,
-                child: Text(b.name),
-              ))
-          .toList(),
-      onChanged: onChanged,
-    );
+
+@override
+Widget build(BuildContext context) {
+  return DropdownButton<Book>(
+    hint: const Text("Select Book"),
+    value: selectedBook, // Book?
+    isExpanded: true,
+    items: books
+        .map((b) => DropdownMenuItem<Book>(
+              value: b,            // Book
+              child: Text(b.name), // label
+            ))
+        .toList(),
+    onChanged: onChanged, // ValueChanged<Book?>
+  );
+
   }
 }

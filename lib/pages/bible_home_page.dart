@@ -20,9 +20,9 @@ class BibleHomePage extends StatefulWidget {
 class _BibleHomePageState extends State<BibleHomePage> {
   Bible? bible;
 
-  String? selectedBook;
-  int? selectedChapter;
-  int? selectedVerse;
+  Book? selectedBook;
+  int? selectedChapter; // if you store Chapter objects
+  int? selectedVerse; // or whatever you used for verse selection
 
   final BibleTranslationService service = BibleTranslationService();
   List<BibleTranslationFile> translations = [];
@@ -32,8 +32,9 @@ class _BibleHomePageState extends State<BibleHomePage> {
   void goToPreviousVerse(Chapter chapter) {
     if (selectedVerse == null || selectedVerse == 0) return;
 
-    final currentIndex =
-        chapter.verses.indexWhere((v) => v.verse == selectedVerse);
+    final currentIndex = chapter.verses.indexWhere(
+      (v) => v.verse == selectedVerse,
+    );
 
     if (currentIndex > 0) {
       setState(() {
@@ -45,8 +46,9 @@ class _BibleHomePageState extends State<BibleHomePage> {
   void goToNextVerse(Chapter chapter) {
     if (selectedVerse == null || selectedVerse == 0) return;
 
-    final currentIndex =
-        chapter.verses.indexWhere((v) => v.verse == selectedVerse);
+    final currentIndex = chapter.verses.indexWhere(
+      (v) => v.verse == selectedVerse,
+    );
 
     if (currentIndex < chapter.verses.length - 1) {
       setState(() {
@@ -55,33 +57,36 @@ class _BibleHomePageState extends State<BibleHomePage> {
     }
   }
 
-    // === If All Verses is selected, previous / next Chapter buttons are visible ===
+  // === If All Verses is selected, previous / next Chapter buttons are visible ===
   void goToPreviousChapter(Book book) {
     if (selectedChapter == null) return;
 
-    final currentIndex =
-        book.chapters.indexWhere((c) => c.chapter == selectedChapter);
+    final currentIndex = book.chapters.indexWhere(
+      (c) => c.chapter == selectedChapter,
+    );
 
     if (currentIndex > 0) {
-        setState(() {
-          selectedChapter = book.chapters[currentIndex - 1].chapter;
-        });
-      }
+      setState(() {
+        selectedChapter = book.chapters[currentIndex - 1].chapter;
+        selectedVerse = 0; // reset to "All verses" when chapter changes
+      });
+    }
   }
 
   void goToNextChapter(Book book) {
     if (selectedChapter == null || selectedChapter == 0) return;
 
-    final currentIndex =
-        book.chapters.indexWhere((v) => v.chapter == selectedChapter);
+    final currentIndex = book.chapters.indexWhere(
+      (c) => c.chapter == selectedChapter,
+    );
 
-    if (currentIndex < book.chapters.length - 1) {
+    if (currentIndex != -1 && currentIndex < book.chapters.length - 1) {
       setState(() {
         selectedChapter = book.chapters[currentIndex + 1].chapter;
+        selectedVerse = 0;
       });
     }
   }
-
 
   @override
   void initState() {
@@ -101,15 +106,11 @@ class _BibleHomePageState extends State<BibleHomePage> {
   @override
   Widget build(BuildContext context) {
     if (bible == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final books = bible!.books;
-    final book = selectedBook != null
-        ? books.firstWhere((b) => b.name == selectedBook)
-        : null;
+  final books = bible!.books;
+  final Book? book = selectedBook;
 
     final chapter = (book != null && selectedChapter != null)
         ? book.chapters.firstWhere((c) => c.chapter == selectedChapter)
@@ -120,9 +121,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
         Positioned.fill(
           child: Image.asset('assets/images/JERUSALEM.png', fit: BoxFit.cover),
         ),
-        Positioned.fill(
-          child: Container(color: Colors.black.withOpacity(0.4)),
-        ),
+        Positioned.fill(child: Container(color: Colors.black.withOpacity(0.4))),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(title: Text(bible!.translation)),
@@ -130,117 +129,79 @@ class _BibleHomePageState extends State<BibleHomePage> {
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 🔹 BOOK + CHAPTER ON THE SAME ROW
-                Row(
-                  children: [
-                    Expanded(
-                      child: BookDropdown(
-                        books: books,
-                        selectedBook: selectedBook,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedBook = value;
-                            selectedChapter = null;
-                            selectedVerse = null;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    if (book != null)
-                      Expanded(
-                        child: ChapterDropdown(
-                          chapters: book.chapters,
-                          selectedChapter: selectedChapter,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedChapter = value;
-                              selectedVerse = 0; // All verses
-                            });
-                          },
-                        ),
-                      ),
-                  ],
-                ),
 
-                const SizedBox(height: 20),
-
-                // ✅ CHAPTER NAVIGATION (only for All Verses selected) Next - Previous Arrows
-                if (book != null && chapter != null && (selectedVerse == null || selectedVerse == 0))
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                          onPressed: () => goToPreviousChapter(book),
-                        ),
+            children: [
+              // 🔹 BOOK + CHAPTER ON THE SAME ROW
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
                         Text(
-                          "Chapter $selectedChapter",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                          "Bible Book",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white70,
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.arrow_forward_ios, color: Colors.white),
-                          onPressed: () => goToNextChapter(book),
-                        ),
+                        SizedBox(height: 6),
                       ],
                     ),
                   ),
+                ],
+              ),
 
-                if (chapter != null)
-                  Expanded(
-                    child: Column(
-                      children: [
-                        // MAIN VERSE CONTENT
-                        Expanded(
-                          child: VerseList(
-                            chapter: chapter,
-                            selectedVerse: selectedVerse,
+              // ✅ CONDITIONAL CONTENT injected cleanly
+              if (chapter != null) ...[
+                Expanded(
+                  child: Column(
+                    children: [
+                      // MAIN VERSE CONTENT
+                      Expanded(
+                        child: VerseList(
+                          chapter: chapter,
+                          selectedVerse: selectedVerse,
+                        ),
+                      ),
+
+                      // NAVIGATION BAR (single verse)
+                      if (selectedVerse != null && selectedVerse! > 0)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back_ios,
+                                    color: Colors.white),
+                                onPressed: () => goToPreviousVerse(chapter),
+                              ),
+                              Text(
+                                "Verse $selectedVerse",
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.arrow_forward_ios,
+                                    color: Colors.white),
+                                onPressed: () => goToNextVerse(chapter),
+                              ),
+                            ],
                           ),
                         ),
-
-                        // NAVIGATION BAR (only for single verse) Next - Previous Arrows
-                        if (selectedVerse != null && selectedVerse! > 0)
-                          Padding (
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.arrow_back_ios,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () => goToPreviousVerse(chapter),
-                                ),
-                                Text(
-                                  "Verse $selectedVerse",
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () => goToNextVerse(chapter),
-                                ),          
-                              ], // ✅ CLOSE children
-                            ), // ✅ CLOSE Row
-                          ), // ✅ CLOSE Padding
-                      ], // ✅ CLOSE Column children 
-                    ), // ✅ CLOSE Column
-                  ), // ✅ CLOSE Expanded
+                    ],
+                  ),
+                ),
               ],
+            ], // ✅ THIS NOW STAYS HERE — correctly
+
+              ), // ✅ CLOSE Expanded
             ),
           ),
         ),
-      ],  
+      ],
     );
   }
 }
