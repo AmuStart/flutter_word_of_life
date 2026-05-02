@@ -121,7 +121,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
         Positioned.fill(
           child: Image.asset('assets/images/JERUSALEM.png', fit: BoxFit.cover),
         ),
-        Positioned.fill(child: Container(color: Colors.black.withOpacity(0.4))),
+        Positioned.fill(child: Container(color: Colors.black.withValues(alpha: 0.4))),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(title: Text(bible!.translation)),
@@ -197,11 +197,14 @@ class _BibleHomePageState extends State<BibleHomePage> {
               ],
             ], // ✅ THIS NOW STAYS HERE — correctly
 
-              ), // ✅ CLOSE Expanded
-            ),
+            //  ), // ✅ CLOSE Expanded
+            //),
           ),
         ),
-      ],
+    
+        ),
+      ],  
+      
     );
   }
 }
