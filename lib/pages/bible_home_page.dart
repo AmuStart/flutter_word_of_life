@@ -84,7 +84,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
 
     final rightHeaderText =
         (selectedBook != null && selectedChapter != null)
-            ? "${selectedBook!.name} $selectedChapter"
+            ? selectedBook!.name  // $selectedChapter"
             : "Book Chapter";
 
     return Stack(
@@ -116,23 +116,26 @@ class _BibleHomePageState extends State<BibleHomePage> {
                 // ✅ Header row: left + right on the same line
                 Row(
                   children: [
-                    const Text(
-                      "Bible Book",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
+                    Expanded(
+                      child: Text(
+                        "Bible Book",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      rightHeaderText,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
+                    Expanded(
+                      child: Text(
+                        rightHeaderText, // e.g. "Deuteronomy"
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
+                        ),
+                        textAlign: TextAlign.start, // important
                       ),
-                      textAlign: TextAlign.right,
                     ),
                   ],
                 ),
