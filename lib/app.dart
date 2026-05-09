@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/bible_home_page.dart';
+import 'pages/bible/bible_home_page.dart';
 
 
 class BibleApp extends StatelessWidget {

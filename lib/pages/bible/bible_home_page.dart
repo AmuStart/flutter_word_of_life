@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../models/bible_models.dart';
-import '../widgets/book_dropdown.dart';
-import '../widgets/chapter_dropdown.dart';
-import '../widgets/verse_list.dart';
+import '../../models/bible_models.dart';
+import '../../widgets/book_dropdown.dart';
+import '../../widgets/chapter_dropdown.dart';
+import 'widgets/verse_list.dart';
+import 'widgets/chapter_navigation.dart';
 
 class BibleHomePage extends StatefulWidget {
   const BibleHomePage({super.key});
@@ -176,55 +177,30 @@ class _BibleHomePageState extends State<BibleHomePage> {
                 // ✅ Main content area always present
                 Expanded(
                   child: chapter == null
-                      ? const Center(
-                          child: Text(
-                            "Select a book and chapter",
-                            style: TextStyle(color: Colors.white70),
+                  ? const Center(
+                      child: Text(
+                        "Select a book and chapter",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: VerseList(
+                            chapter: chapter,
                           ),
-                        )
-                      : Column(
-                          children: [
-                            Expanded(
-                              child: VerseList(
-                                chapter: chapter,
-                              ),
-                            ),
-
-                            // ✅ Chapter navigation bar
-                            if (selectedBook != null)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.arrow_back_ios,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: () =>
-                                          goToPreviousChapter(selectedBook!),
-                                    ),
-                                    Text(
-                                      "${selectedBook!.name} $selectedChapter",
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: () =>
-                                          goToNextChapter(selectedBook!),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
                         ),
+
+                        // ✅ Chapter navigation bar
+                        if (selectedBook != null)
+                          ChapterNavigation(
+                            book: selectedBook!,
+                            chapter: selectedChapter!,
+                            onPrevious: () => goToPreviousChapter(selectedBook!),
+                            onNext: () => goToNextChapter(selectedBook!),
+                          ),
+                      ],
+                    ),
                 ),
               ],
             ),
