@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../models/bible_models.dart';
-import '../../widgets/book_dropdown.dart';
-import '../../widgets/chapter_dropdown.dart';
 import 'widgets/verse_list.dart';
 import 'widgets/chapter_navigation.dart';
+import 'widgets/chapter_selector.dart';
+import 'widgets/book_selector.dart';
 
 class BibleHomePage extends StatefulWidget {
   const BibleHomePage({super.key});
@@ -83,11 +83,6 @@ class _BibleHomePageState extends State<BibleHomePage> {
           )
         : null;
 
-    final rightHeaderText =
-        (selectedBook != null && selectedChapter != null)
-            ? selectedBook!.name  // $selectedChapter"
-            : "Book Chapter";
-
     return Stack(
       children: [
         Positioned.fill(
@@ -111,70 +106,73 @@ class _BibleHomePageState extends State<BibleHomePage> {
           ),
           body: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: 
+              Column(
               children: [
-                // ✅ Header row: left + right on the same line
+                // Headers
                 Row(
-                  children: [
+                  children: const [
                     Expanded(
                       child: Text(
-                        "Bible Book",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                        "Book",
+                        style: TextStyle(
                           color: Colors.white70,
-                        ),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          ),
                       ),
                     ),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        rightHeaderText, // e.g. "Deuteronomy"
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                        "Chapter",
+                        style: TextStyle(
                           color: Colors.white70,
-                        ),
-                        textAlign: TextAlign.start, // important
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
 
-                // ✅ Book + Chapter dropdowns
+                const SizedBox(height: 4),
+                
+                // Book and Chapter drop-downs
                 Row(
                   children: [
                     Expanded(
-                      child: BookDropdown(
-                        books: books,
+                      child: BookSelector(
                         selectedBook: selectedBook,
-                        onChanged: (b) {
+                        books: books,
+                        onChanged: (book) {
                           setState(() {
-                            selectedBook = b;
-                            selectedChapter = null; // reset; user chooses chapter
+                            selectedBook = book;
+                            selectedChapter = 1;
                           });
                         },
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: ChapterDropdown(
-                        chapters: selectedBook?.chapters ?? const [],
+                      child: ChapterSelector(
                         selectedChapter: selectedChapter,
-                        onChanged: (c) {
+                        chapters: selectedBook?.chapters
+                                .map((c) => c.chapter)
+                                .toList() ??
+                            [],
+                        onChanged: (chapter) {
                           setState(() {
-                            selectedChapter = c;
+                            selectedChapter = chapter!;
                           });
                         },
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 12),
 
-                // ✅ Main content area always present
+              // Add ends
                 Expanded(
                   child: chapter == null
                   ? const Center(
@@ -186,24 +184,23 @@ class _BibleHomePageState extends State<BibleHomePage> {
                   : Column(
                       children: [
                         Expanded(
-                          child: VerseList(
-                            chapter: chapter,
-                          ),
+                          child: VerseList(chapter: chapter),
                         ),
-
-                        // ✅ Chapter navigation bar
-                        if (selectedBook != null)
+                        if (selectedBook != null && selectedChapter != null)
                           ChapterNavigation(
                             book: selectedBook!,
                             chapter: selectedChapter!,
-                            onPrevious: () => goToPreviousChapter(selectedBook!),
-                            onNext: () => goToNextChapter(selectedBook!),
+                            onPrevious: () =>
+                                goToPreviousChapter(selectedBook!),
+                            onNext: () =>
+                                goToNextChapter(selectedBook!),
                           ),
                       ],
                     ),
                 ),
               ],
-            ),
+            )
+
           ),
         ),
       ],
