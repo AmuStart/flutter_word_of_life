@@ -7,6 +7,7 @@ import 'widgets/verse_list.dart';
 import 'widgets/chapter_navigation.dart';
 import 'widgets/chapter_selector.dart';
 import 'widgets/book_selector.dart';
+import 'widgets/selectors_layout.dart';
 
 class BibleHomePage extends StatefulWidget {
   const BibleHomePage({super.key});
@@ -109,67 +110,45 @@ class _BibleHomePageState extends State<BibleHomePage> {
             child: 
               Column(
               children: [
-                // Headers
                 Row(
-                  children: const [
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Expanded(
-                      child: Text(
-                        "Book",
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          ),
+                      child: SelectorWithLabel(
+                        title: "Book",
+                        selector: BookSelector(
+                          selectedBook: selectedBook,
+                          books: books,
+                          onChanged: (book) {
+                            setState(() {
+                              selectedBook = book;
+                              selectedChapter = 1;
+                            });
+                          },
+                        ),
                       ),
                     ),
-                    SizedBox(width: 12),
+
+                    const SizedBox(width: 12),
+
                     Expanded(
-                      child: Text(
-                        "Chapter",
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          ),
+                      child: SelectorWithLabel(
+                        title: "Chapter",
+                        selector: ChapterSelector(
+                          selectedChapter: selectedChapter,
+                          chapters: selectedBook?.chapters.map((c) => c.chapter).toList() ?? [],
+                          onChanged: (chapter) {
+                            setState(() {
+                              selectedChapter = chapter!;
+                            });
+                          },
+                        ),
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 4),
-                
-                // Book and Chapter drop-downs
-                Row(
-                  children: [
-                    Expanded(
-                      child: BookSelector(
-                        selectedBook: selectedBook,
-                        books: books,
-                        onChanged: (book) {
-                          setState(() {
-                            selectedBook = book;
-                            selectedChapter = 1;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ChapterSelector(
-                        selectedChapter: selectedChapter,
-                        chapters: selectedBook?.chapters
-                                .map((c) => c.chapter)
-                                .toList() ??
-                            [],
-                        onChanged: (chapter) {
-                          setState(() {
-                            selectedChapter = chapter!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+
                 const SizedBox(height: 12),
 
               // Add ends

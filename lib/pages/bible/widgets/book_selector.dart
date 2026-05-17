@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/bible_models.dart';
+import 'selectors_layout.dart';
 
 class BookSelector extends StatelessWidget {
   final Book? selectedBook;
@@ -19,11 +20,11 @@ class BookSelector extends StatelessWidget {
       value: selectedBook,
       isExpanded: true,
       dropdownColor: Colors.black,
-      icon: const Icon(Icons.arrow_drop_down, color: Colors.white), // ✅ arrow color
-      style: const TextStyle(color: Colors.white), // ✅ selected text color
+      icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+      style: const TextStyle(color: Colors.white),
       underline: Container(
         height: 1,
-        color: Colors.white70, // ✅ consistent underline
+        color: Colors.white70,
       ),
       items: books.map((book) {
         return DropdownMenuItem<Book>(
