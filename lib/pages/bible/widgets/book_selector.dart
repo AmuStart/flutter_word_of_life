@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../models/bible_models.dart';
-import 'selectors_layout.dart';
 
 class BookSelector extends StatelessWidget {
   final Book? selectedBook;
@@ -16,22 +15,49 @@ class BookSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<Book>(
+    return DropdownButtonFormField<Book>(
       value: selectedBook,
       isExpanded: true,
-      dropdownColor: Colors.black,
-      icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-      style: const TextStyle(color: Colors.white),
-      underline: Container(
-        height: 1,
-        color: Colors.white70,
+      dropdownColor: const Color(0xFF1F1F1F),
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: Colors.white,
+      ),
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 16,
+      ),
+      decoration: InputDecoration(
+        isDense: true,
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.08),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.25),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Colors.white70,
+          ),
+        ),
+      ),
+      hint: const Text(
+        'Select book',
+        style: TextStyle(color: Colors.white70),
       ),
       items: books.map((book) {
         return DropdownMenuItem<Book>(
           value: book,
           child: Text(
             book.name,
-            style: const TextStyle(color: Colors.white),
+            overflow: TextOverflow.ellipsis,
           ),
         );
       }).toList(),

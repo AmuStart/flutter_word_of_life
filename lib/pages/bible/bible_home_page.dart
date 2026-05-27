@@ -99,87 +99,123 @@ class _BibleHomePageState extends State<BibleHomePage> {
         ),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            title: Text(bible!.translation),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            foregroundColor: Colors.white,
-          ),
+          // appBar: AppBar(
+          //   title: Text(bible!.translation),
+          //   backgroundColor: Colors.transparent,
+          //   elevation: 0,
+          //   foregroundColor: Colors.white,
+          // ),
           body: Padding(
             padding: const EdgeInsets.all(16),
-            child: 
-              Column(
+            child: Column(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: SelectorWithLabel(
-                        title: "Book",
-                        selector: BookSelector(
-                          selectedBook: selectedBook,
-                          books: books,
-                          onChanged: (book) {
-                            setState(() {
-                              selectedBook = book;
-                              selectedChapter = 1;
-                            });
-                          },
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.22),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.15),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // const Text(
+                      //   'FinBiblia',
+                      //   style: TextStyle(
+                      //     color: Colors.white,
+                      //     fontSize: 28,
+                      //     fontWeight: FontWeight.w600,
+                      //   ),
+                      // ),
+                      const SizedBox(height: 4),
+                      Text(
+                        bible!.translation,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
                         ),
                       ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: SelectorWithLabel(
-                        title: "Chapter",
-                        selector: ChapterSelector(
-                          selectedChapter: selectedChapter,
-                          chapters: selectedBook?.chapters.map((c) => c.chapter).toList() ?? [],
-                          onChanged: (chapter) {
-                            setState(() {
-                              selectedChapter = chapter!;
-                            });
-                          },
-                        ),
+                      const SizedBox(height: 18),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              child: BookSelector(
+                                selectedBook: selectedBook,
+                                books: books,
+                                onChanged: (book) {
+                                  setState(() {
+                                    selectedBook = book;
+                                    selectedChapter = 1;
+                                  });
+                                },
+                              ),
+                           // ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ChapterSelector(
+                                selectedChapter: selectedChapter,
+                                chapters: selectedBook?.chapters
+                                        .map((c) => c.chapter)
+                                        .toList() ??
+                                    [],
+                                onChanged: (chapter) {
+                                  setState(() {
+                                    selectedChapter = chapter;
+                                  });
+                                },
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-
-
-                const SizedBox(height: 12),
-
-              // Add ends
+                const SizedBox(height: 16),
                 Expanded(
                   child: chapter == null
-                  ? const Center(
-                      child: Text(
-                        "Select a book and chapter",
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: VerseList(chapter: chapter),
-                        ),
-                        if (selectedBook != null && selectedChapter != null)
-                          ChapterNavigation(
-                            book: selectedBook!,
-                            chapter: selectedChapter!,
-                            onPrevious: () =>
-                                goToPreviousChapter(selectedBook!),
-                            onNext: () =>
-                                goToNextChapter(selectedBook!),
+                      ? const Center(
+                          child: Text(
+                            "Select a book and chapter",
+                            style: TextStyle(color: Colors.white70),
                           ),
-                      ],
-                    ),
+                        )
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: VerseList(chapter: chapter),
+                            ),
+                            if (selectedBook != null && selectedChapter != null)
+                              ChapterNavigation(
+                                book: selectedBook!,
+                                chapter: selectedChapter!,
+                                onPrevious: () => goToPreviousChapter(selectedBook!),
+                                onNext: () => goToNextChapter(selectedBook!),
+                              ),
+                          ],
+                        ),
                 ),
               ],
-            )
-
+            ),
+          ),
+        ),
+        // Gear ICON
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 8,
+          right: 30,
+          child: GestureDetector(
+            onTap: () {
+              print("Settings tapped");
+            },
+            child: Icon(
+              Icons.settings,
+              color: Colors.white,
+              size: 22,
+            ),
           ),
         ),
       ],
