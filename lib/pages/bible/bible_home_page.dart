@@ -7,7 +7,7 @@ import 'widgets/verse_list.dart';
 import 'widgets/chapter_navigation.dart';
 import 'widgets/chapter_selector.dart';
 import 'widgets/book_selector.dart';
-import 'widgets/selectors_layout.dart';
+import 'widgets/settings_menu.dart';
 
 class BibleHomePage extends StatefulWidget {
   const BibleHomePage({super.key});
@@ -29,7 +29,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
   }
 
   Future<void> loadBible() async {
-    final jsonString = await rootBundle.loadString("assets/bible.json");
+    final jsonString = await rootBundle.loadString("assets/finn_1776_bible.json");
     final jsonData = json.decode(jsonString);
 
     setState(() {
@@ -122,14 +122,6 @@ class _BibleHomePageState extends State<BibleHomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // const Text(
-                      //   'FinBiblia',
-                      //   style: TextStyle(
-                      //     color: Colors.white,
-                      //     fontSize: 28,
-                      //     fontWeight: FontWeight.w600,
-                      //   ),
-                      // ),
                       const SizedBox(height: 4),
                       Text(
                         bible!.translation,
@@ -207,16 +199,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
           right: 30,
-          child: GestureDetector(
-            onTap: () {
-              print("Settings tapped");
-            },
-            child: Icon(
-              Icons.settings,
-              color: Colors.white,
-              size: 22,
-            ),
-          ),
+          child: const SettingsMenu(),
         ),
       ],
     );
