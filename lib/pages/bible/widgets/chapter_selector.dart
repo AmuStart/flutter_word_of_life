@@ -29,7 +29,7 @@ class ChapterSelector extends StatelessWidget {
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: Colors.white.withOpacity(0.08),
+        fillColor: Colors.grey.shade400,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 12,

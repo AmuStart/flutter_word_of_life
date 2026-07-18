@@ -16,7 +16,7 @@ class BookSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<Book>(
-      value: selectedBook,
+      value: books.contains(selectedBook) ? selectedBook : null,
       isExpanded: true,
       dropdownColor: const Color(0xFF1F1F1F),
       icon: const Icon(
@@ -30,7 +30,7 @@ class BookSelector extends StatelessWidget {
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: Colors.white.withOpacity(0.08),
+        fillColor: Colors.grey.shade400,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 12,

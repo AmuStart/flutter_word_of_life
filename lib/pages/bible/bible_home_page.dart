@@ -7,14 +7,27 @@ import 'widgets/verse_list.dart';
 import 'widgets/chapter_navigation.dart';
 import 'widgets/chapter_selector.dart';
 import 'widgets/book_selector.dart';
-import 'widgets/settings_menu.dart';
+// import 'widgets/settings_menu.dart';
+
+/*
+
+THIS IS NOT IN USE !!!
+
+*/
+
 
 class BibleHomePage extends StatefulWidget {
-  const BibleHomePage({super.key});
+  final String translationPath; // 👈 ADD THIS
+
+  const BibleHomePage({
+    super.key,
+    required this.translationPath, // 👈 ADD THIS
+  });
 
   @override
   State<BibleHomePage> createState() => _BibleHomePageState();
 }
+
 
 class _BibleHomePageState extends State<BibleHomePage> {
   Bible? bible;
@@ -22,14 +35,14 @@ class _BibleHomePageState extends State<BibleHomePage> {
   Book? selectedBook;
   int? selectedChapter;
 
-  @override
-  void initState() {
-    super.initState();
-    loadBible();
-  }
+@override
+void initState() {
+  super.initState();
+  loadBible(widget.translationPath); // ✅ use passed value
+}
 
-  Future<void> loadBible() async {
-    final jsonString = await rootBundle.loadString("assets/finn_1776_bible.json");
+  Future<void> loadBible(String path) async {
+    final jsonString = await rootBundle.loadString(path);
     final jsonData = json.decode(jsonString);
 
     setState(() {
@@ -67,6 +80,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('=== BibleHomePage build');
     if (bible == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -88,7 +102,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
       children: [
         Positioned.fill(
           child: Image.asset(
-            'assets/images/JERUSALEM.png',
+            'assets/images/JESUS_riding.png',
             fit: BoxFit.cover,
           ),
         ),
@@ -99,12 +113,6 @@ class _BibleHomePageState extends State<BibleHomePage> {
         ),
         Scaffold(
           backgroundColor: Colors.transparent,
-          // appBar: AppBar(
-          //   title: Text(bible!.translation),
-          //   backgroundColor: Colors.transparent,
-          //   elevation: 0,
-          //   foregroundColor: Colors.white,
-          // ),
           body: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -137,7 +145,7 @@ class _BibleHomePageState extends State<BibleHomePage> {
                           Expanded(
                               child: BookSelector(
                                 selectedBook: selectedBook,
-                                books: books,
+                                books: bible?.books ?? [],
                                 onChanged: (book) {
                                   setState(() {
                                     selectedBook = book;
@@ -150,16 +158,16 @@ class _BibleHomePageState extends State<BibleHomePage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: ChapterSelector(
-                                selectedChapter: selectedChapter,
-                                chapters: selectedBook?.chapters
-                                        .map((c) => c.chapter)
-                                        .toList() ??
-                                    [],
-                                onChanged: (chapter) {
-                                  setState(() {
-                                    selectedChapter = chapter;
-                                  });
-                                },
+                              selectedChapter: selectedChapter,
+                              chapters: selectedBook?.chapters
+                                      .map((c) => c.chapter)
+                                      .toList() ??
+                                  [],
+                              onChanged: (chapter) {
+                                setState(() {
+                                  selectedChapter = chapter;
+                                });
+                              },
                             ),
                           ),
                         ],
@@ -194,12 +202,6 @@ class _BibleHomePageState extends State<BibleHomePage> {
               ],
             ),
           ),
-        ),
-        // Gear ICON
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 8,
-          right: 30,
-          child: const SettingsMenu(),
         ),
       ],
     );
