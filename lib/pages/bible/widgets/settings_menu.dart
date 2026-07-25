@@ -11,6 +11,7 @@ class SettingsMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
+      offset: const Offset(-40, 0), // move menu left
       icon: const Icon(
         Icons.settings,
         color: Colors.grey,

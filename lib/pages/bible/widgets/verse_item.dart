@@ -9,15 +9,17 @@ class VerseItem extends StatelessWidget {
     required this.verse,
   });
 
+// Bible text details
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Text(
         "${verse.verse}. ${verse.text}",
         style: const TextStyle(
           fontSize: 18,
           color: Colors.white,
+          height: 1.5, // improves readability
         ),
       ),
     );

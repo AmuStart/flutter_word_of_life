@@ -22,6 +22,7 @@ flutter:
   assets:
     - assets/finn_1776_bible.json
     - assets/finn_1938_bible.json
+    - assets/en_kjv_1769_bible.json
     - assets/images/JERUSALEM.png
     - assets/images/JESUS_riding.png
 
