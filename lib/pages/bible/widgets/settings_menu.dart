@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
 class SettingsMenu extends StatelessWidget {
-  final VoidCallback onSelectBible; // 👈 ADD THIS
+  final VoidCallback onSelectBible;
+  final VoidCallback onSelectTheme;   // NEW
 
   const SettingsMenu({
     super.key,
-    required this.onSelectBible, // 👈 ADD THIS
+    required this.onSelectBible,
+    required this.onSelectTheme,      // NEW
   });
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      offset: const Offset(-40, 0), // move menu left
+      offset: const Offset(-40, 0),
       icon: const Icon(
         Icons.settings,
         color: Colors.grey,
@@ -19,7 +21,9 @@ class SettingsMenu extends StatelessWidget {
       ),
       onSelected: (value) {
         if (value == 'bible') {
-          onSelectBible(); // 👈 CALL IT HERE
+          onSelectBible();
+        } else if (value == 'theme') {
+          onSelectTheme();
         }
       },
       itemBuilder: (context) => [
@@ -28,7 +32,7 @@ class SettingsMenu extends StatelessWidget {
           child: Text('Theme'),
         ),
         const PopupMenuItem(
-          value: 'bible', // ✅ ensure lowercase
+          value: 'bible',
           child: Text('Bible Translation'),
         ),
         const PopupMenuItem(
