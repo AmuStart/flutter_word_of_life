@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class SettingsMenu extends StatelessWidget {
   final VoidCallback onSelectBible;
   final VoidCallback onSelectTheme;   // NEW
+  final VoidCallback onSelectFontSize;
 
   const SettingsMenu({
     super.key,
     required this.onSelectBible,
     required this.onSelectTheme,      // NEW
+    required this.onSelectFontSize,
   });
 
   @override
@@ -24,6 +26,8 @@ class SettingsMenu extends StatelessWidget {
           onSelectBible();
         } else if (value == 'theme') {
           onSelectTheme();
+        } else if (value == 'font') {
+          onSelectFontSize();
         }
       },
       itemBuilder: (context) => [
@@ -37,7 +41,13 @@ class SettingsMenu extends StatelessWidget {
         ),
         const PopupMenuItem(
           value: 'font',
-          child: Text('Font Size'),
+          child: Row(
+            children: const [
+              Icon(Icons.format_size),
+              SizedBox(width: 8),
+              Text('Font Size')
+            ],
+          ),
         ),
         const PopupMenuItem(
           value: 'about',
