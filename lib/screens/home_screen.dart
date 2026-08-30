@@ -7,7 +7,7 @@ import '../pages/bible/widgets/verse_list.dart';
 import '../pages/bible/widgets/book_selector.dart';
 import '../pages/bible/widgets/chapter_selector.dart';
 import '../pages/bible/widgets/chapter_navigation.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,7 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadBible(currentTranslation); // ✅ FIXED
+    loadBible(currentTranslation);
+    // loadLastLocation();
   }
 
   Future<void> loadBible(String path) async {
@@ -40,8 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final jsonString = await rootBundle.loadString(path);
       print("✅ JSON loaded, length: ${jsonString.length}");
+
+      final sw = Stopwatch()..start();
+      print("loadString: ${sw.elapsedMilliseconds} ms");
+
       final jsonData = jsonDecode(jsonString);
       print("JSON Data keys: ${jsonData.keys}");
+      print("jsonDecode: ${sw.elapsedMilliseconds} ms");
 
 
       final booksJson = jsonData['books'];
@@ -50,8 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
       print("Translation from JSON: ${jsonData["translation"]}");
 
       setState(() {
-        bible = Bible.fromJson(jsonData); // ✅ THIS is the key change
+        bible = Bible.fromJson(jsonData);
       });
+      // RESTORING USER'S LAST SESSION BOOK / CHAPTER
+      await restoreLastLocation();
+
       print("Bible translation: ${bible?.translation}");
 
       print("✅ Bible parsed: ${bible!.books.length} books");
@@ -60,7 +69,57 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-    void goToPreviousChapter(Book book) {
+Future<void> restoreLastLocation() async {
+  if (bible == null) return;
+
+  final prefs = await SharedPreferences.getInstance();
+
+  final savedBookName = prefs.getString('lastBook');
+  final savedChapter = prefs.getInt('lastChapter');
+
+  print("📖 savedBookName=$savedBookName");
+  print("📖 savedChapter=$savedChapter");
+
+  setState(() {
+    if (savedBookName == null) {
+      // First launch
+      selectedBook = bible!.books.first; // Genesis
+      selectedChapter = 1;
+    } else {
+      selectedBook = bible!.books.firstWhere(
+        (book) => book.name == savedBookName,
+        orElse: () => bible!.books.first,
+      );
+
+      selectedChapter = savedChapter ?? 1;
+    }
+  });
+
+  print(
+    "📖 Restored locations: ${selectedBook?.name} $selectedChapter"
+  );
+}
+
+Future<void> saveLastLocation() async {
+  print("Save last location");
+  final prefs = await SharedPreferences.getInstance();
+
+  await prefs.setString(
+    'lastBook',
+    selectedBook?.name ?? '',
+  );
+
+  await prefs.setInt(
+    'lastChapter',
+    selectedChapter ?? 1,
+  );
+
+  print(
+    '💾 Saved: ${selectedBook?.name} $selectedChapter'
+  );
+}
+    
+  void goToPreviousChapter(Book book) {
     if (selectedChapter == null) return;
 
     final currentIndex =
@@ -70,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         selectedChapter = book.chapters[currentIndex - 1].chapter;
       });
+      saveLastLocation();
     }
   }
 
@@ -83,6 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         selectedChapter = book.chapters[currentIndex + 1].chapter;
       });
+      saveLastLocation();
     }
   }
 
@@ -91,45 +152,72 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (context) {
         double tempFontSize = fontSize;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Font Size'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Font Size: ${tempFontSize.round()}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
 
-        return AlertDialog(
-          title: const Text('Font Size'),
-          content: StatefulBuilder(
-            builder: (context, setDialogState) {
-              return Slider(
-                value: tempFontSize,
-                min: 12,
-                max: 32,
-                divisions: 20,
-                label: tempFontSize.round().toString(),
-                onChanged: (value) {
-                  setDialogState(() {
-                    tempFontSize = value;
-                  });
-                },
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  fontSize = tempFontSize;
-                });
+                  const SizedBox(height: 12),
 
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
-            ),
-          ],
+                  Slider(
+                    value: tempFontSize,
+                    min: 12,
+                    max: 32,
+                    divisions: 20,
+                    label: tempFontSize.round().toString(),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        tempFontSize = value;
+                      });
+                    },
+                  ),
+
+                  Text(
+                    'The Lord is my shepherd',
+                    style: TextStyle(
+                      fontSize: tempFontSize,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setDialogState(() {
+                      tempFontSize = 14.0;
+                    });
+                  },
+                  child: const Text('Default'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      fontSize = tempFontSize;
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
         );
-      },
-    );
-  }
+        },
+      );
+    }
   // TODO move to new settings.dart
   void _changeTranslation() async {
     final selected = await showDialog<String>(
@@ -169,10 +257,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       await loadBible(selected);
     }
-  }
-
-  void _changeFontSize() async {
-
   }
 
   void _changeTheme() async {
@@ -326,8 +410,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             onChanged: (book) {
                               setState(() {
                                 selectedBook = book;
-                                selectedChapter = null;
+                                selectedChapter = 1;
                               });
+                              saveLastLocation();
                             },
                           ),
                         ),
@@ -343,6 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               setState(() {
                                 selectedChapter = chapter;
                               });
+                              saveLastLocation();
                             },
                           ),
                         ),
@@ -364,7 +450,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       : Column(
                           children: [
                             Expanded(
-                              child: VerseList(chapter: chapter),
+                              child: VerseList(
+                                chapter: chapter,
+                                fontSize: fontSize,
+                              ),
                             ),
                             if (selectedBook != null && selectedChapter != null)
                               ChapterNavigation(

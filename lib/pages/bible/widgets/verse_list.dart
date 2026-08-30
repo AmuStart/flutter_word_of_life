@@ -4,10 +4,12 @@ import 'verse_item.dart';
 
 class VerseList extends StatelessWidget {
   final Chapter chapter;
+  final double fontSize;
 
   const VerseList({
     super.key,
     required this.chapter,
+    required this.fontSize,
   });
 
 
@@ -20,7 +22,10 @@ Widget build(BuildContext context) {
       itemCount: chapter.allVerses.length,
       itemBuilder: (context, index) {
         final verse = chapter.allVerses[index];
-        return VerseItem(verse: verse);
+        return VerseItem(
+          verse: verse,
+          fontSize: fontSize,
+          );
       },
     ),
   );
