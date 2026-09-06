@@ -31,8 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadBible(currentTranslation);
-    // loadLastLocation();
+    initializeApp();
+    //loadBible(currentTranslation);
+  }
+
+  Future<void> initializeApp() async {
+    print("Initialize App");
+    await restoreSettings();
+    print("Translation restored: $currentTranslation");
+    await loadBible(currentTranslation);
   }
 
   Future<void> loadBible(String path) async {
@@ -48,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
       final jsonData = jsonDecode(jsonString);
       print("JSON Data keys: ${jsonData.keys}");
       print("jsonDecode: ${sw.elapsedMilliseconds} ms");
-
 
       final booksJson = jsonData['books'];
       print("Books length: ${booksJson.length}");
@@ -118,7 +124,32 @@ Future<void> saveLastLocation() async {
     '💾 Saved: ${selectedBook?.name} $selectedChapter'
   );
 }
-    
+
+Future<void> restoreSettings() async {
+  print("Restore Font and Translation");
+  final prefs = await SharedPreferences.getInstance();
+
+  currentTranslation =
+      prefs.getString('lastTranslation') ??
+      'assets/finn_1776_bible.json';
+
+  fontSize =
+      prefs.getDouble('fontSize') ??
+      18.0;
+}
+
+Future<void> saveTranslation() async {
+  print("Saving Translation");
+  final prefs = await SharedPreferences.getInstance();
+
+  await prefs.setString(
+    'lastTranslation',
+    currentTranslation,
+  );
+
+  print("💾 Saved translation: $currentTranslation");
+}
+
   void goToPreviousChapter(Book book) {
     if (selectedChapter == null) return;
 
@@ -254,7 +285,7 @@ Future<void> saveLastLocation() async {
         selectedBook = null;       // ✅ reset book
         selectedChapter = null;    // ✅ reset chapter
       });
-
+      await saveTranslation();
       await loadBible(selected);
     }
   }
