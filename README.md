@@ -39,6 +39,7 @@ The application currently supports:
 - Offline content support
 
 ## Project Structure:
+```text
 lib/
 ├── main.dart
 ├── screens/
@@ -46,9 +47,10 @@ lib/
 ├── models/
 ├── services/
 └── providers/
+```
 
-## Getting Started
-# Prerequisites
+# Getting Started
+## Prerequisites
 - Flutter SDK
 - Dart SDK
 - Android Studio or VS Code
